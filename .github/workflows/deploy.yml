@@ -1,0 +1,44 @@
+name: Deploy to AWS EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set Up NodeJS
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22'
+
+      - name: Install Dependencies
+        run: npm i
+
+      - name: Build Project
+        run: npm run build
+
+      - name: ssh connect to ec2
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          ENV: ${{secrets.ENV}}
+        with:
+          host: ${{secrets.EC2_HOST}}
+          username: ${{secrets.EC2_USERNAME}}
+          key: ${{secrets.EC2_KEY}}
+          envs: ENV
+          script_stop: true
+          script: |
+            cd ~/sns_test
+            rm -rf .env
+            git pull origin main
+            echo "$ENV" > .env
+            pnpm install
+            pnpm build
+            pm2 kill
+            pm2 start dist/main.js --name "server"

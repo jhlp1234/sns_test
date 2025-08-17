@@ -47,6 +47,11 @@ import { join } from 'path';
           PostUserLike,
         ],
         synchronize: configService.get<string>('ENV') === 'prod' ? false : true,
+        ...(configService.get<string>('ENV') === 'prod' && {
+          ssl: {
+            rejectUnauthorized: false,
+          }
+        })
       }),
       inject: [ConfigService],
     }),
