@@ -34,7 +34,7 @@ jobs:
           envs: ENV
           script_stop: true
           script: |
-            cd ~/sns_test
+            cd /home/ubuntu/sns_test
             rm -rf .env
             git pull origin main
             echo "$ENV" > .env
